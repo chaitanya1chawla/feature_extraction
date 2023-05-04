@@ -169,7 +169,7 @@ int main() {
     double rot_angle_dt = 90/90; // angle of rotation
     Eigen::Vector3d norm_dt(0.0, 0.0, -1.0); // normal axis
     norm_dt *= sin(rot_angle_dt *3.14/360);
-    DualQuaternion<double> orientationIncrement(Quaterniond(cos(rot_angle_dt *3.14/360), norm(0), norm(1), norm(2)), Vector3d{0, 0, 0});
+    DualQuaternion<double> orientationIncrement(Quaterniond(cos(rot_angle_dt *3.14/360), norm_dt(0), norm_dt(1), norm_dt(2)), Vector3d{0, 0, 0});
     DQ orientationIncrementDQ = fromPoseToDQ(orientationIncrement);
 
     for (auto const &objectName: objectNamesInSimulation) {
