@@ -1,0 +1,1 @@
+/usr/bin/c++  -O3 -DNDEBUG   CMakeFiles/CoppeliaSimTutorial.dir/main.cpp.o  -o CoppeliaSimTutorial  /usr/local/lib/libAndreiUtils_eigen.a -ldqrobotics -ldqrobotics-interface-vrep -lpthread /usr/local/lib/libAndreiUtils_core.a /usr/local/lib/libAndreiUtils_openmp.a /usr/lib/gcc/x86_64-linux-gnu/7/libgomp.so -lpthread -lpthread 
