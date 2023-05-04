@@ -126,7 +126,7 @@ namespace AndreiUtils {
                 n = theta;
             } else {
                 n = 0.5 * theta;
-            }
+            }  // if else construct is redundant
 
             T cos_n = cos(n);
             T cos_a_n = cos(a * n);

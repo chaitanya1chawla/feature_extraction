@@ -137,7 +137,6 @@ int main() {
 //
 //
 
-    cout << "Rotating each object from the list 90 degrees about z axis..." << endl;
     for (auto const &objectName: objectNamesInSimulation) {
 
         auto objectPose = vi.get_object_pose(objectName);  // this object is a DQ (<- DualQuaternion) used by dqrobotics
@@ -145,14 +144,14 @@ int main() {
         DualQuaternion<double> poseChange(Eigen::Quaterniond(1, 0, 0, 0), Vector3d{-originalPos(0), -originalPos(1), 0});  // move to origin
         DQ poseChangeDQ = fromPoseToDQ(poseChange);
         auto newObjectPose_1 = poseChangeDQ * objectPose;
-        
+
         double rot_angle = 90; // angle of rotation
         Eigen::Vector3d norm(0.0, 0.0, 1.0); // normal axis
         norm *= sin(rot_angle*3.14/360);
         DualQuaternion<double> orientationChange(Eigen::Quaterniond(cos(rot_angle*3.14/360), norm(0), norm(1), norm(2)), Vector3d{0, 0, 0}); //rotate
         DQ orientationChangeDQ = fromPoseToDQ(orientationChange);
         auto newObjectPose_2 = orientationChangeDQ * newObjectPose_1;
-        
+
         DualQuaternion<double> poseChange_2(Eigen::Quaterniond(1, 0, 0, 0), Vector3d{originalPos(0), originalPos(1), 0});  // move back to initial pos
         DQ poseChangeDQ_2 = fromPoseToDQ(poseChange_2);
         auto newObjectPose_3 = poseChangeDQ_2 * newObjectPose_2;
@@ -164,7 +163,6 @@ int main() {
     sleepMSec(2000);
 
 
-
     cout << "Those moves happened instantly... Let's make smooth transitions back to the original positions :)" << endl;
     double rot_angle_dt = 90/90; // angle of rotation
     Eigen::Vector3d norm_dt(0.0, 0.0, -1.0); // normal axis
@@ -174,25 +172,18 @@ int main() {
 
     for (auto const &objectName: objectNamesInSimulation) {
         auto objectPose = vi.get_object_pose(objectName);  // this object is a DQ (<- DualQuaternion) used by dqrobotics
+        Eigen::Vector3d originalPos = tFromDQ(objectPose).transpose();
 
+        auto newObjectPose_3 = objectPose * fromPoseToDQ(DualQuaternion<double>(qzRotation(M_PI/180), Vector3d::Zero()));
         int iter = 0;
-	// 90 * 1 degree = -2m
-        while (iter < 90) {
+        // 90 * 1 degree = 90 degrees
+        while (iter < 89) {
             // auto pose = vi.get_object_pose(objectName);
 
-            Eigen::Vector3d originalPos = tFromDQ(objectPose).transpose();
-            DualQuaternion<double> poseChange(Eigen::Quaterniond(1, 0, 0, 0), Vector3d{-originalPos(0), -originalPos(1), 0});  // move to origin
-            DQ poseChangeDQ = fromPoseToDQ(poseChange);
-            auto newObjectPose_1 = poseChangeDQ * objectPose;
-        
-            auto newObjectPose_2 = orientationIncrementDQ * newObjectPose_1;
-        
-            DualQuaternion<double> poseChange_2(Eigen::Quaterniond(1, 0, 0, 0), Vector3d{originalPos(0), originalPos(1), 0});  // move back to initial pos
-            DQ poseChangeDQ_2 = fromPoseToDQ(poseChange_2);
-            auto newObjectPose_3 = poseChangeDQ_2 * newObjectPose_2;  // if the order changes, check what happens
+            newObjectPose_3 = newObjectPose_3 *  fromPoseToDQ(DualQuaternion<double>(qzRotation(M_PI/180), Vector3d::Zero()));
 
             vi.set_object_pose(objectName, newObjectPose_3);
-            
+
             sleepMSec(10);  // sleep a bit before the next step
             ++iter;
         }
@@ -201,6 +192,25 @@ int main() {
     }
     sleepMSec(1000);
 
+
+
+    cout << "Doing a screw motion for each object from the list with 90 degrees about z axis and 2m translation in x direction..." << endl;
+    for (auto const &objectName: objectNamesInSimulation) {
+        cout<<"hello";
+        auto objectPose = vi.get_object_pose(objectName);  // this object is a DQ (<- DualQuaternion) used by dqrobotics
+        Eigen::Vector3d originalPos = tFromDQ(objectPose).transpose();
+
+
+        DualQuaternion<double> transl(Eigen::Quaterniond(1, 0, 0, 0), Vector3d{2, 0, 0});  // 2 meters in x-direction
+        cout<<"xox";
+        auto newObjectPoseDQ = objectPose*fromPoseToDQ(transl.sclerp(M_PI/2, DualQuaternion<double>(Eigen::Quaterniond(1, 0, 0, 0), Vector3d{0, 0, 0})));
+        cout<<"done";
+
+
+        vi.set_object_pose(objectName, newObjectPoseDQ);
+        sleepMSec(1000);  // sleep a bit before the next object
+    }
+    sleepMSec(2000);
 
     cout << "Program finished normally" << endl;
 
